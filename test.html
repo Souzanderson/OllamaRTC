@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <title>Aplicativo de Mensagens - WebRTC</title>
+</head>
+<style>
+    .frame {
+        width: 80%;
+        margin: 0 auto;
+        font-family: Arial, Helvetica, sans-serif;
+    }
+
+    .frame h1 {
+        text-align: center;
+    }
+
+    #channeldiv {
+        margin-bottom: 12px;
+    }
+
+    #messagediv {
+        visibility: hidden;
+        gap: 8px;
+    }
+
+    #consolediv {
+        visibility: hidden;
+    }
+
+    #console {
+        text-align: left;
+        white-space: pre-line;
+        max-height: calc(100vh - 380px); /* Defina a altura máxima desejada */
+        overflow-y: auto; /* Adicione a rolagem vertical */
+    }
+</style>
+<body>
+    <div class="frame">
+        <h1>Aplicativo de Mensagens - WebRTC</h1>
+        <br />
+        <div id="channeldiv">
+            <h2>Usuário:</h2>
+            <input type="text" id="name" placeholder="Digite seu nome...">
+            <button onclick="start()">Entrar na Conversa</button>
+        </div>
+        <br />
+        <div id="messagediv">
+            <textarea id="message" placeholder="Digite uma mensagem"></textarea>
+            <button onclick="sendMessage()">Enviar Mensagem</button>
+        </div>
+        <div id="consolediv">
+            <h2>Mensagens:</h2>
+            <div id="console">
+
+            </div>
+        </div>
+    <!-- <script>
+        document.querySelector('button[onclick="start()"]').addEventListener('click', () => {
+            const canal = document.getElementById('canal').value;
+            if (canal) {
+                document.getElementById('messagediv').style.display = 'inline';
+                document.getElementById('consolediv').style.display = 'inline';
+                document.getElementById('message').style.display = 'inline';
+                document.getElementById('canal').disabled = true;
+                document.querySelector('button[onclick="start()"]').disabled = true;
+            }
+        });
+    </script> -->
+    <script>
+        let dataChannel;
+
+        async function start() {
+            const pc = new RTCPeerConnection();
+
+            // Cria o DataChannel
+            chanelName = "chat";
+            userName = document.getElementById('name').value;
+            if(!chanelName || !userName) {
+                console.warn('Canal/usuário não informado!');
+                return;
+            }
+
+            document.getElementById('messagediv').style.display = 'grid';
+            document.getElementById('consolediv').style.visibility = 'visible';
+            document.getElementById('messagediv').style.visibility = 'visible';
+            document.getElementById('name').disabled = true;
+            document.getElementById('message').focus();
+            document.querySelector('button[onclick="start()"]').disabled = true;
+            dataChannel = pc.createDataChannel(chanelName);
+
+            dataChannel.onopen = () => console.log('DataChannel aberto!');
+            dataChannel.onclose = () => console.log('DataChannel fechado!');
+            dataChannel.onerror = (error) => console.error('Erro no DataChannel:', error);
+            dataChannel.onmessage = (event) => {
+                const jsonObject = JSON.parse(event.data);
+                console.log("JSON recebido:", jsonObject);
+                messageReceived(jsonObject);
+            };
+
+            // Cria e envia a oferta para o backend
+            const offer = await pc.createOffer();
+            await pc.setLocalDescription(offer);
+
+            const response = await fetch('http://0.0.0.0:8080/offer', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    sdp: pc.localDescription.sdp,
+                    type: pc.localDescription.type
+                })
+            });
+
+            const answer = await response.json();
+            await pc.setRemoteDescription(answer);
+        }
+
+        async function setPersonality(){
+            const response = await fetch('http://0.0.0.0:8080/personality', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    sdp: pc.localDescription.sdp,
+                    type: pc.localDescription.type
+                })
+            });
+        }
+
+        function messageReceived(jsonObject, sended = false) {
+            const date = new Date(jsonObject.timestamp);
+            const formattedDate = date.toLocaleString('pt-BR', { dateStyle: 'short', timeStyle: 'short' });
+            const sanitizedMessage = document.createTextNode(`${formattedDate} - ${jsonObject.user}, disse: ${jsonObject.message}\n`);
+            const messageDiv = document.createElement('div');
+            messageDiv.style.padding = '4px';
+            if (sended) {
+                messageDiv.style.textAlign = 'right';
+            }else {
+                messageDiv.style.textAlign = 'left';
+            }
+            messageDiv.appendChild(sanitizedMessage);
+            document.getElementById('console').appendChild(messageDiv);
+        }
+
+        function sendMessage() {
+            userName = document.getElementById('name').value;
+            message = document.getElementById('message').value;
+            if (dataChannel && dataChannel.readyState === 'open') {
+                const jsonObject = {
+                    message: message,
+                    timestamp: new Date().toISOString(),
+                    user: userName
+                };
+                dataChannel.send(JSON.stringify(jsonObject));
+                console.log("JSON enviado:", jsonObject);
+                document.getElementById('message').value = '';
+                document.getElementById('message').focus();
+                messageReceived(jsonObject, true);
+            } else {
+                console.log("DataChannel não está aberto!");
+            }
+        }
+
+        // Inicia a conexão ao carregar a página
+    </script>
+</body>
+</html>
