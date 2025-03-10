@@ -1,7 +1,7 @@
 [project]
-name = "datachanel"
+name = "OllamaRTC"
 version = "0.1.0"
-description = "Add your description here"
+description = "OllamaRTC é um projeto que implementa um servidor WebRTC utilizando aiohttp e aiortc para permitir comunicação em tempo real. Ele inclui uma interface de chat que interage com o modelo de linguagem llama3.2"
 readme = "README.md"
 requires-python = ">=3.12"
 dependencies = [
