@@ -6,7 +6,7 @@ OllamaRTC é um projeto que implementa um servidor WebRTC utilizando aiohttp e a
 ## Arquivos Principais
 
 - `app.py`: Implementa o servidor WebRTC usando aiohttp e aiortc.
-- `chatgpt.py`: Contém funções para interação com o modelo de linguagem.
+- `chat.py`: Contém funções para interação com o modelo de linguagem.
 - `settings.py`: Contém configurações do projeto.
 - `test.html`: Página HTML para o frontend do aplicativo de chat.
 - `pyproject.toml`: Arquivo de configuração do projeto.
