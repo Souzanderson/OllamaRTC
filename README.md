@@ -37,11 +37,11 @@ OllamaRTC é um projeto que implementa um servidor WebRTC utilizando aiohttp e a
     python app.py
     ```
 
-2. Abra o arquivo [test.html](http://_vscodecontentref_/7) em um navegador para acessar o frontend do aplicativo de chat.
+2. Abra o arquivo [test.html](https://github.com/Souzanderson/OllamaRTC/blob/main/test.html) em um navegador para acessar o frontend do aplicativo de chat.
 
 ## Dependências
 
-As dependências do projeto estão listadas no arquivo [pyproject.toml](http://_vscodecontentref_/10):
+As dependências do projeto estão listadas no arquivo [pyproject.toml](https://github.com/Souzanderson/OllamaRTC/blob/main/pyproject.toml):
 - aiohttp-cors>=0.7.0
 - aiohttp>=3.11.13
 - aiortc>=1.10.1
